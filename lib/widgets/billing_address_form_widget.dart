@@ -6,6 +6,7 @@ import 'package:credit_card/service_locator.dart';
 import 'package:credit_card/util/size_config.dart';
 import 'package:credit_card/util/strings.dart';
 import 'package:credit_card/util/text_style_utils.dart';
+import 'package:credit_card/widgets/alert_dialog_widget.dart';
 import 'package:credit_card/widgets/continue_button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -203,8 +204,11 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
             child: ContinueButtonWidget(
               onPressedAction: () {
                 if (formKey.currentState.validate()) {
-                  sl<CreditCardPaymentBloc>().saveCreditCardPayment(
-                      widget.creditCardPayment, context, _controllers);
+                  AlertDialogWidget.showDoneDialog(
+                      context,
+                      'Salvo com sucesso!',
+                      () => sl<CreditCardPaymentBloc>().saveCreditCardPayment(
+                          widget.creditCardPayment, context, _controllers));
                 }
               },
               buttonText: 'Salvar',

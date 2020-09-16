@@ -4,6 +4,7 @@ import 'package:credit_card/model/credit_card_payment.dart';
 import 'package:credit_card/service_locator.dart';
 import 'package:credit_card/util/credit_cards_utils.dart';
 import 'package:credit_card/util/size_config.dart';
+import 'package:credit_card/widgets/alert_dialog_widget.dart';
 import 'package:credit_card/widgets/billing_address_form_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_credit_card/credit_card_widget.dart';
@@ -74,8 +75,15 @@ class _ViewCreditCardDetailsState extends State<ViewCreditCardDetails> {
               Container(
                 padding: EdgeInsets.only(bottom: SizeConfig.sizeByPixel(16.0)),
                 child: FlatButton(
-                  child: Text("REMOVER", style: TextStyle(color: Colors.red),),
-                  onPressed: () => sl<CreditCardPaymentBloc>().removeCreditCardPayment(widget.cardPayment, context),
+                  child: Text(
+                    "REMOVER",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onPressed: () => AlertDialogWidget.showWarningDialog(
+                      context,
+                      'Deseja remover este cartão?',
+                      () => sl<CreditCardPaymentBloc>().removeCreditCardPayment(
+                          widget.cardPayment, context)),
                 ),
               )
             ],
@@ -85,29 +93,3 @@ class _ViewCreditCardDetailsState extends State<ViewCreditCardDetails> {
     );
   }
 }
-
-
-// GestureDetector(
-// onTap: () {},
-// child: Card(
-// margin: EdgeInsets.only(left: 16, top: 8, right: 16),
-// child: Container(
-// child: ListTile(
-// title: Text("Endereço de cobrança"),
-// leading: Icon(Icons.home),
-// trailing: Icon(Icons.arrow_forward_ios),
-// )
-// // Row(
-// //   crossAxisAlignment: CrossAxisAlignment.center,
-// //   children: [
-// //     Icon(Icons.home),
-// //     Expanded(
-// //       child: Text("Endereço de cobrança")
-// //     ),
-// //     Icon(Icons.arrow_forward_ios)
-// //   ],
-// // )
-// ,
-// ),
-// ),
-// ),

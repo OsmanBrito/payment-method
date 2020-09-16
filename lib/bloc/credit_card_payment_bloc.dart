@@ -104,6 +104,9 @@ class CreditCardPaymentBloc
         : sharedPreferences.setString(
             'paymentMethod', json.encode(paymentMethod.toJson()));
     sl<CreditCardPaymentBloc>().add(GetCreditCardPayment());
+    // Pop on dialog
+    Navigator.of(context).pop();
+    // Pop to PaymentMethodScreen
     Navigator.of(context).pop();
   }
 }
