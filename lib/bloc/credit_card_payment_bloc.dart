@@ -88,6 +88,7 @@ class CreditCardPaymentBloc
     paymentMethod.creditCards.add(creditCardPayment);
     sharedPreferences.setString(
         'paymentMethod', json.encode(paymentMethod.toJson()));
+    sl<CreditCardPaymentBloc>().add(GetCreditCardPayment());
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => PaymentMethodsScreen()));
   }

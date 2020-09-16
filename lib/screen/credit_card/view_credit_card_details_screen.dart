@@ -1,8 +1,6 @@
 import 'package:cpfcnpj/cpfcnpj.dart';
 import 'package:credit_card/bloc/credit_card_payment_bloc.dart';
-import 'package:credit_card/model/billing_address.dart';
 import 'package:credit_card/model/credit_card_payment.dart';
-import 'package:credit_card/screen/credit_card/add_billing_address_screen.dart';
 import 'package:credit_card/service_locator.dart';
 import 'package:credit_card/util/credit_cards_utils.dart';
 import 'package:credit_card/util/size_config.dart';
@@ -13,7 +11,7 @@ import 'package:flutter_credit_card/credit_card_widget.dart';
 class ViewCreditCardDetails extends StatefulWidget {
   ViewCreditCardDetails({this.cardPayment});
 
-  CreditCardPayment cardPayment;
+  final CreditCardPayment cardPayment;
 
   @override
   _ViewCreditCardDetailsState createState() => _ViewCreditCardDetailsState();
@@ -73,9 +71,12 @@ class _ViewCreditCardDetailsState extends State<ViewCreditCardDetails> {
                 ),
               ),
               BillingAddressFormWidget(creditCardPayment: widget.cardPayment),
-              FlatButton(
-                child: Text("REMOVER"),
-                onPressed: () => sl<CreditCardPaymentBloc>().removeCreditCardPayment(widget.cardPayment, context),
+              Container(
+                padding: EdgeInsets.only(bottom: SizeConfig.sizeByPixel(16.0)),
+                child: FlatButton(
+                  child: Text("REMOVER", style: TextStyle(color: Colors.red),),
+                  onPressed: () => sl<CreditCardPaymentBloc>().removeCreditCardPayment(widget.cardPayment, context),
+                ),
               )
             ],
           ),

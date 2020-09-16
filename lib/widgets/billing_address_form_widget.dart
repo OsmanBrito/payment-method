@@ -1,3 +1,4 @@
+import 'package:credit_card/bloc/billing_address_bloc.dart';
 import 'package:credit_card/bloc/credit_card_payment_bloc.dart';
 import 'package:credit_card/model/billing_address.dart';
 import 'package:credit_card/model/credit_card_payment.dart';
@@ -7,6 +8,7 @@ import 'package:credit_card/util/strings.dart';
 import 'package:credit_card/util/text_style_utils.dart';
 import 'package:credit_card/widgets/continue_button_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_credit_card/credit_card_widget.dart';
 
 class BillingAddressFormWidget extends StatefulWidget {
@@ -26,7 +28,7 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
 
   @override
   void initState() {
-    _initTextEditingControllers();
+    _initTextEditingControllers(widget.creditCardPayment.billingAddress);
     super.initState();
   }
 
@@ -38,102 +40,9 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: EdgeInsets.all(SizeConfig.sizeByPixel(8)),
+              padding: EdgeInsets.all(SizeConfig.sizeByPixel(8)),
               child: Text("Endereço de cobrança",
-                  style: TextStyleUtils.textPaymentMethod)),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
-            child: TextFormField(
-              controller: _controllers[mapAddress],
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Endereço',
-              ),
-              validator: (value) {
-                return value.isNotEmpty ? null : 'Endereço inválido';
-              },
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
-            child: TextFormField(
-              controller: _controllers[mapNumber],
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Número',
-              ),
-              validator: (value) {
-                return value.isNotEmpty ? null : 'Número inválido';
-              },
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.next,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
-            child: TextFormField(
-              controller: _controllers[mapNeighborhood],
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Bairro',
-              ),
-              validator: (value) {
-                return value.isNotEmpty ? null : 'Bairro inválido';
-              },
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
-            child: TextFormField(
-              controller: _controllers[mapComplement],
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Complemento',
-              ),
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
-            child: TextFormField(
-              controller: _controllers[mapCity],
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Cidade',
-              ),
-              validator: (value) {
-                return value.isNotEmpty ? null : 'Cidade inválida';
-              },
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
-            child: TextFormField(
-              controller: _controllers[mapState],
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'Estado',
-              ),
-              validator: (value) {
-                return value.isNotEmpty ? null : 'Estado inválido';
-              },
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-            ),
-          ),
+                  style: TextStyleUtils.titleProfileSection)),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
@@ -146,88 +55,180 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
               validator: (value) {
                 return value.isNotEmpty ? null : 'CEP invalido';
               },
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.next,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
-            child: TextFormField(
-              controller: _controllers[mapCountry],
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                labelText: 'País',
-              ),
-              validator: (value) {
-                return value.isNotEmpty ? null : 'País invalido';
+              onFieldSubmitted: (value) {
+                sl<BillingAddressBloc>().add(VerifyCEP(value));
               },
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.done,
+              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.send,
             ),
           ),
-          Container(
-              margin: EdgeInsets.only(bottom: SizeConfig.sizeByPixel(16)),
-              child: ContinueButtonWidget(
-                onPressedAction: () {
-                  if (formKey.currentState.validate()) {
-                    sl<CreditCardPaymentBloc>().saveCreditCardPayment(
-                        widget.creditCardPayment, context, _controllers);
+          BlocProvider(
+              create: (_) => sl<BillingAddressBloc>(),
+              child: Column(children: [
+                BlocBuilder<BillingAddressBloc, BillingAddressState>(
+                    builder: (BuildContext context, state) {
+                  if (state is BillingAddressLoading) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (state is BillingAddressDone) {
+                    _initTextEditingControllers(state.billingAddress);
+                    return _buildForm();
+                  } else if (state is BillingAddressError) {
+                    return Center(child: Text('Erro, ${state.errorMessage}'));
+                  } else {
+                    return Container();
                   }
-                },
-                buttonText: 'Salvar',
-              )),
+                })
+              ]))
         ],
       ),
     );
   }
 
-  void _initTextEditingControllers() {
-    _controllers[mapAddress] = TextEditingController(
-        text: widget.creditCardPayment.billingAddress?.address ?? '');
-    _controllers[mapNumber] = TextEditingController(
-        text: widget.creditCardPayment.billingAddress?.number ?? '');
-    _controllers[mapNeighborhood] = TextEditingController(
-        text: widget.creditCardPayment.billingAddress?.neighborhood ?? '');
-    _controllers[mapComplement] = TextEditingController(
-        text: widget.creditCardPayment.billingAddress?.complement ?? '');
-    _controllers[mapCity] = TextEditingController(
-        text: widget.creditCardPayment.billingAddress?.city ?? '');
-    _controllers[mapState] = TextEditingController(
-        text: widget.creditCardPayment.billingAddress?.state ?? '');
+  Widget _buildForm() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
+          child: TextFormField(
+            controller: _controllers[mapAddress],
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'Endereço',
+            ),
+            validator: (value) {
+              return value.isNotEmpty ? null : 'Endereço inválido';
+            },
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.next,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
+          child: TextFormField(
+            controller: _controllers[mapNumber],
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'Número',
+            ),
+            validator: (value) {
+              return value.isNotEmpty ? null : 'Número inválido';
+            },
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.next,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
+          child: TextFormField(
+            controller: _controllers[mapNeighborhood],
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'Bairro',
+            ),
+            validator: (value) {
+              return value.isNotEmpty ? null : 'Bairro inválido';
+            },
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.next,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
+          child: TextFormField(
+            controller: _controllers[mapComplement],
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'Complemento',
+            ),
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.next,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
+          child: TextFormField(
+            controller: _controllers[mapCity],
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'Cidade',
+            ),
+            validator: (value) {
+              return value.isNotEmpty ? null : 'Cidade inválida';
+            },
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.next,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
+          child: TextFormField(
+            controller: _controllers[mapState],
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'Estado',
+            ),
+            validator: (value) {
+              return value.isNotEmpty ? null : 'Estado inválido';
+            },
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.next,
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          margin: const EdgeInsets.only(left: 16, top: 8, right: 16),
+          child: TextFormField(
+            controller: _controllers[mapCountry],
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: 'País',
+            ),
+            validator: (value) {
+              return value.isNotEmpty ? null : 'País invalido';
+            },
+            keyboardType: TextInputType.text,
+            textInputAction: TextInputAction.done,
+          ),
+        ),
+        Container(
+            margin: EdgeInsets.only(bottom: SizeConfig.sizeByPixel(16)),
+            child: ContinueButtonWidget(
+              onPressedAction: () {
+                if (formKey.currentState.validate()) {
+                  sl<CreditCardPaymentBloc>().saveCreditCardPayment(
+                      widget.creditCardPayment, context, _controllers);
+                }
+              },
+              buttonText: 'Salvar',
+            )),
+      ],
+    );
+  }
+
+  void _initTextEditingControllers(BillingAddress billingAddress) {
+    _controllers[mapAddress] =
+        TextEditingController(text: billingAddress?.address ?? '');
+    _controllers[mapNumber] =
+        TextEditingController(text: billingAddress?.number ?? '');
+    _controllers[mapNeighborhood] =
+        TextEditingController(text: billingAddress?.neighborhood ?? '');
+    _controllers[mapComplement] =
+        TextEditingController(text: billingAddress?.complement ?? '');
+    _controllers[mapCity] =
+        TextEditingController(text: billingAddress?.city ?? '');
+    _controllers[mapState] =
+        TextEditingController(text: billingAddress?.state ?? '');
     _controllers[mapCEP] = MaskedTextController(
-        mask: '00000-000',
-        text: widget.creditCardPayment.billingAddress?.cep ?? '');
-    _controllers[mapCountry] = TextEditingController(
-        text: widget.creditCardPayment.billingAddress?.country ?? '');
+        mask: '00000-000', text: billingAddress?.cep ?? '');
+    _controllers[mapCountry] =
+        TextEditingController(text: billingAddress?.country ?? '');
   }
 }
-
-// if (widget.creditCardPayment.billingAddress != null) {
-// _controllers[mapAddress] = TextEditingController(
-// text: widget.creditCardPayment.billingAddress.address ?? '');
-// _controllers[mapNumber] = TextEditingController(
-// text: widget.creditCardPayment.billingAddress.number ?? '');
-// _controllers[mapNeighborhood] = TextEditingController(
-// text: widget.creditCardPayment.billingAddress.neighborhood ?? '');
-// _controllers[mapComplement] = TextEditingController(
-// text: widget.creditCardPayment.billingAddress.complement ?? '');
-// _controllers[mapCity] = TextEditingController(
-// text: widget.creditCardPayment.billingAddress.city ?? '');
-// _controllers[mapState] = TextEditingController(
-// text: widget.creditCardPayment.billingAddress.state ?? '');
-// _controllers[mapCEP] = MaskedTextController(
-// mask: '00000-000',
-// text: widget.creditCardPayment.billingAddress.cep ?? '');
-// _controllers[mapCountry] = TextEditingController(
-// text: widget.creditCardPayment.billingAddress.country ?? '');
-// } else {
-// _controllers[mapAddress] = TextEditingController();
-// _controllers[mapNumber] = TextEditingController();
-// _controllers[mapNeighborhood] = TextEditingController();
-// _controllers[mapComplement] = TextEditingController();
-// _controllers[mapCity] = TextEditingController();
-// _controllers[mapState] = TextEditingController();
-// _controllers[mapCEP] = MaskedTextController(mask: '00000-000');
-// _controllers[mapCountry] = TextEditingController();
-// }
