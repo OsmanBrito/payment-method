@@ -6,7 +6,7 @@ import 'package:credit_card/service_locator.dart';
 import 'package:credit_card/util/size_config.dart';
 import 'package:credit_card/util/strings.dart';
 import 'package:credit_card/util/text_style_utils.dart';
-import 'package:credit_card/widgets/alert_dialog_widget.dart';
+import 'package:credit_card/util/alert_dialog_util.dart';
 import 'package:credit_card/widgets/continue_button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,10 +26,19 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
   Map<String, TextEditingController> _controllers =
       <String, TextEditingController>{};
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  BillingAddressBloc _bloc;
+
+  @override
+  void dispose() {
+    _bloc.close();
+    _disposeControllers();
+    super.dispose();
+  }
 
   @override
   void initState() {
     _initTextEditingControllers(widget.creditCardPayment.billingAddress);
+    _bloc = BillingAddressBloc();
     super.initState();
   }
 
@@ -57,14 +66,14 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
                 return value.isNotEmpty ? null : 'CEP invalido';
               },
               onFieldSubmitted: (value) {
-                sl<BillingAddressBloc>().add(VerifyCEP(value));
+                _bloc.add(VerifyCEP(value));
               },
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.send,
             ),
           ),
           BlocProvider(
-              create: (_) => sl<BillingAddressBloc>(),
+              create: (_) => _bloc,
               child: Column(children: [
                 BlocBuilder<BillingAddressBloc, BillingAddressState>(
                     builder: (BuildContext context, state) {
@@ -104,6 +113,7 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
             },
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
+            onFieldSubmitted: (v) => FocusScope.of(context).nextFocus(),
           ),
         ),
         Container(
@@ -120,6 +130,7 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
             },
             keyboardType: TextInputType.number,
             textInputAction: TextInputAction.next,
+            onFieldSubmitted: (v) => FocusScope.of(context).nextFocus(),
           ),
         ),
         Container(
@@ -136,6 +147,7 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
             },
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
+            onFieldSubmitted: (v) => FocusScope.of(context).nextFocus(),
           ),
         ),
         Container(
@@ -149,6 +161,7 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
             ),
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
+            onFieldSubmitted: (v) => FocusScope.of(context).nextFocus(),
           ),
         ),
         Container(
@@ -165,6 +178,7 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
             },
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
+            onFieldSubmitted: (v) => FocusScope.of(context).nextFocus(),
           ),
         ),
         Container(
@@ -181,6 +195,7 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
             },
             keyboardType: TextInputType.text,
             textInputAction: TextInputAction.next,
+            onFieldSubmitted: (v) => FocusScope.of(context).nextFocus(),
           ),
         ),
         Container(
@@ -204,11 +219,13 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
             child: ContinueButtonWidget(
               onPressedAction: () {
                 if (formKey.currentState.validate()) {
-                  AlertDialogWidget.showDoneDialog(
+                  AlertDialogUtil.showLoadingDialog(
+                      context, 'Salvo com sucesso!');
+                  sl<CreditCardPaymentBloc>().saveCreditCardPayment(
+                      widget.creditCardPayment,
                       context,
-                      'Salvo com sucesso!',
-                      () => sl<CreditCardPaymentBloc>().saveCreditCardPayment(
-                          widget.creditCardPayment, context, _controllers));
+                      _controllers,
+                      widget.creditCardPayment.billingAddress != null);
                 }
               },
               buttonText: 'Salvar',
@@ -234,5 +251,11 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
         mask: '00000-000', text: billingAddress?.cep ?? '');
     _controllers[mapCountry] =
         TextEditingController(text: billingAddress?.country ?? '');
+  }
+
+  void _disposeControllers() {
+    _controllers.forEach((key, value) {
+      value.clear();
+    });
   }
 }

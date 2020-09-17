@@ -8,7 +8,6 @@ import 'package:credit_card/util/size_config.dart';
 import 'package:credit_card/widgets/continue_button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_credit_card/credit_card_widget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class PaymentMethodsScreen extends StatefulWidget {
@@ -18,9 +17,18 @@ class PaymentMethodsScreen extends StatefulWidget {
 
 class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
 
+  CreditCardPaymentBloc _bloc;
+
+  @override
+  void dispose() {
+    _bloc.close();
+    super.dispose();
+  }
+
   @override
   void initState() {
-    sl<CreditCardPaymentBloc>().add(GetCreditCardPayment());
+    _bloc = sl<CreditCardPaymentBloc>();
+    _bloc.add(GetCreditCardPayment());
     super.initState();
   }
 
@@ -31,7 +39,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       appBar: AppBar(title: Text("Cartões")),
       body: SingleChildScrollView(
         child: BlocProvider(
-          create: (_) => sl<CreditCardPaymentBloc>(),
+          create: (_) => _bloc,
           child: Column(
             children: [
               BlocBuilder<CreditCardPaymentBloc, CreditCardPaymentState>(

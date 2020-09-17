@@ -1,6 +1,34 @@
 import 'package:flutter/material.dart';
 
-class AlertDialogWidget {
+class AlertDialogUtil {
+  static void showLoadingDialog(BuildContext context, String title) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: Text(title),
+              content: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ));
+  }
+
+  static void showErrorDialog(BuildContext context, {String title}) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: Text('Ops! Ocorreu um erro :C'),
+              content: Center(
+                child: Text(title ?? "Tente novamente mais tarde."),
+              ),
+              actions: [
+                FlatButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("OK"),
+                )
+              ],
+            ));
+  }
+
   static void showWarningDialog(
       BuildContext context, String title, Function onPressed) {
     showDialog(
