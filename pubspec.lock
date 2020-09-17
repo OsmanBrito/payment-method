@@ -121,9 +121,11 @@ packages:
   flutter_credit_card:
     dependency: "direct main"
     description:
-      path: "../flutter_credit_card"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "80237d596b328cfa431dafe92a44411e212ecdbe"
+      url: "https://github.com/OsmanBrito/flutter_credit_card"
+    source: git
     version: "0.1.4"
   flutter_svg:
     dependency: "direct main"
