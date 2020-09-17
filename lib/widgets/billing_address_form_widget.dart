@@ -68,8 +68,8 @@ class _BillingAddressFormWidgetState extends State<BillingAddressFormWidget> {
               onFieldSubmitted: (value) {
                 _bloc.add(VerifyCEP(value));
               },
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.send,
+              keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
+              textInputAction: TextInputAction.go,
             ),
           ),
           BlocProvider(
